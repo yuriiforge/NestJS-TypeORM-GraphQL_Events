@@ -21,10 +21,10 @@ import {
 } from '@nestjs/common';
 import { EventsService } from '../event.service';
 import { ListEvents } from '../dtos/list.events';
-import { AuthGuardJwt } from '../../auth/auth-guard.jwt';
+import { AuthGuardJwt } from '../../auth/guards/auth-guard.jwt';
 import { CreateEventDto } from '../dtos/create-event.dto';
 import { CurrentUser } from '../../auth/current-user.decorator';
-import { User } from '../../auth/user.entity';
+import { User } from '../../auth/entities/user.entity';
 import { UpdateEventDto } from '../dtos/update-event.dto';
 @Controller('/events')
 @SerializeOptions({ strategy: 'excludeAll' })

@@ -22,7 +22,7 @@ export class Teacher {
   id: number;
 
   @Column()
-  @Field(() => Gender)
+  @Field()
   name: string;
 
   @Column({
@@ -30,7 +30,7 @@ export class Teacher {
     enum: Gender,
     default: Gender.Other,
   })
-  @Field()
+  @Field(() => Gender)
   gender: Gender;
 
   @ManyToMany(() => Subject, (subject) => subject.teachers)

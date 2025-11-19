@@ -7,11 +7,11 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AuthGuardLocal } from './auth-guard.local';
-import { User } from './user.entity';
-import { CurrentUser } from './current-user.decorator';
-import { AuthService } from './auth.service';
-import { AuthGuardJwt } from './auth-guard.jwt';
+import { AuthGuardLocal } from '../guards/auth-guard.local';
+import { User } from '../entities/user.entity';
+import { CurrentUser } from '../current-user.decorator';
+import { AuthGuardJwt } from '../guards/auth-guard.jwt';
+import { AuthService } from '../services/auth.service';
 
 @Controller('auth')
 @SerializeOptions({ strategy: 'excludeAll' })

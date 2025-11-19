@@ -1,10 +1,10 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { JwtPayload } from './jwt.strategy';
+import { User } from '../entities/user.entity';
+import { JwtPayload } from '../guards/jwt.strategy';
 
 @Injectable()
 export class AuthService {
@@ -23,12 +23,12 @@ export class AuthService {
       sub: user.id,
     };
 
-    const token = this.jwtService.sign(payload) as string;
+    const token = this.jwtService.sign(payload);
     return token;
   }
 
   public async hashPassword(password: string): Promise<string> {
-    return (await bcrypt.hash(password, 10)) as string;
+    return await bcrypt.hash(password, 10);
   }
 
   public async validateUser(username: string, password: string): Promise<User> {

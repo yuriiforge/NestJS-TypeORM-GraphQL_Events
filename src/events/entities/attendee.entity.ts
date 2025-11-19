@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Event } from './event.entity';
-import { User } from '../../auth/user.entity';
+import { User } from '../../auth/entities/user.entity';
 
 export enum AttendeeAnswerEnum {
   Accepted = 1,

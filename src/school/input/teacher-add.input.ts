@@ -9,7 +9,7 @@ export class TeacherAddInput {
   @MinLength(5)
   name: string;
 
-  @Field()
+  @Field(() => Gender)
   @IsNotEmpty()
   @IsEnum(Gender)
   gender: Gender;

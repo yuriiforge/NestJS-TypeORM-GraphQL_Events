@@ -8,10 +8,12 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Profile } from './profile.entity';
-import { Event } from '../events/entities/event.entity';
-import { Attendee } from '../events/entities/attendee.entity';
+import { Event } from '../../events/entities/event.entity';
+import { Attendee } from '../../events/entities/attendee.entity';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 
 @Entity()
+@ObjectType()
 export class User {
   constructor(partial?: Partial<User>) {
     Object.assign(this, partial);
@@ -19,10 +21,12 @@ export class User {
 
   @PrimaryGeneratedColumn()
   @Expose()
+  @Field(() => Int)
   id: number;
 
   @Column({ unique: true })
   @Expose()
+  @Field()
   username: string;
 
   @Column()
@@ -34,10 +38,12 @@ export class User {
 
   @Column()
   @Expose()
+  @Field()
   firstName: string;
 
   @Column()
   @Expose()
+  @Field()
   lastName: string;
 
   @OneToOne(() => Profile)

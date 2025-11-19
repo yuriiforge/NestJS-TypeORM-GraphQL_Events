@@ -15,8 +15,8 @@ import {
 } from '@nestjs/common';
 import { EventsService } from '../event.service';
 import { AttendeesService } from '../services/attendees.service';
-import { AuthGuardJwt } from '../../auth/auth-guard.jwt';
-import { User } from '../../auth/user.entity';
+import { AuthGuardJwt } from '../../auth/guards/auth-guard.jwt';
+import { User } from '../../auth/entities/user.entity';
 import { CurrentUser } from '../../auth/current-user.decorator';
 import { CreateAttendeeDto } from '../dtos/create-atendee.dto';
 
