@@ -8,12 +8,10 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Profile } from './profile.entity';
-import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Event } from '../events/entities/event.entity';
 import { Attendee } from '../events/entities/attendee.entity';
 
 @Entity()
-@ObjectType()
 export class User {
   constructor(partial?: Partial<User>) {
     Object.assign(this, partial);
@@ -21,13 +19,10 @@ export class User {
 
   @PrimaryGeneratedColumn()
   @Expose()
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  @Field(() => Int)
   id: number;
 
   @Column({ unique: true })
   @Expose()
-  @Field()
   username: string;
 
   @Column()
@@ -35,17 +30,14 @@ export class User {
 
   @Column({ unique: true })
   @Expose()
-  @Field()
   email: string;
 
   @Column()
   @Expose()
-  @Field()
   firstName: string;
 
   @Column()
   @Expose()
-  @Field()
   lastName: string;
 
   @OneToOne(() => Profile)

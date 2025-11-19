@@ -1,0 +1,43 @@
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Subject } from './subject.entity';
+import { Gender } from '../school.types';
+import { Field, ObjectType } from '@nestjs/graphql';
+import { Course } from './course.entity';
+
+@Entity()
+@ObjectType()
+export class Teacher {
+  constructor(partial?: Partial<Teacher>) {
+    Object.assign(this, partial);
+  }
+
+  @PrimaryGeneratedColumn()
+  @Field({ nullable: true })
+  id: number;
+
+  @Column()
+  @Field(() => Gender)
+  name: string;
+
+  @Column({
+    type: 'enum',
+    enum: Gender,
+    default: Gender.Other,
+  })
+  @Field()
+  gender: Gender;
+
+  @ManyToMany(() => Subject, (subject) => subject.teachers)
+  @Field(() => [Subject])
+  subjects: Promise<Subject[]>;
+
+  @OneToMany(() => Course, (course) => course.teacher)
+  @Field(() => [Course])
+  courses: Promise<Course[]>;
+}
