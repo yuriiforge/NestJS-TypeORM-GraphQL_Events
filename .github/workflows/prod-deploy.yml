@@ -1,0 +1,12 @@
+name: Production CD
+
+on:
+  workflow_dispatch:
+
+jobs:
+  call-deploy:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: production
+    secrets: inherit

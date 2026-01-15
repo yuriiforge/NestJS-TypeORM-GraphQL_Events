@@ -4,7 +4,7 @@ import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
 import { User } from '../auth/entities/user.entity';
 import { AttendeeAnswerEnum } from './entities/attendee.entity';
 import { ListEvents, WhenEventFilter } from './dtos/list.events';
-import { paginate, PaginateOptions } from '../../pagination/paginator';
+import { paginate, PaginateOptions } from '../pagination/paginator';
 import { Event, PaginatedEvents } from './entities/event.entity';
 import { CreateEventDto } from './dtos/create-event.dto';
 import { UpdateEventDto } from './dtos/update-event.dto';
