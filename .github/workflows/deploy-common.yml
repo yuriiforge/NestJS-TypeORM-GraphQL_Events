@@ -29,6 +29,17 @@ jobs:
     environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          touch .env
+          echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
+          echo "DB_USERNAME=${{ vars.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ vars.DB_NAME }}" >> .env
+          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}"
+
       - name: Local Deploy
         run: |
           docker-compose up -d --build
