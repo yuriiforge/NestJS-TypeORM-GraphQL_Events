@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Attendee } from './attendee.entity';
 import { User } from '../../auth/entities/user.entity';
-import { Paginated } from '../../../pagination/paginator';
+import { Paginated } from '../../pagination/paginator';
 
 @Entity()
 export class Event {
