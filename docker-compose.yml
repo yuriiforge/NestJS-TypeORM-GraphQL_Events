@@ -1,9 +1,7 @@
-version: '3.8'
 services:
   api:
     build: .
     ports:
-      - '80:3000' # Maps EC2 port 80 to NestJS port 3000
+      - '3000:3000' # Map EC2 3000 to Container 3000
     env_file:
       - .env
-    restart: always
