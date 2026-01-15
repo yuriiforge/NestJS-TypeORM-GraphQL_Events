@@ -6,7 +6,7 @@ on:
 jobs:
   call-deploy:
     if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/deploy.yml
+    uses: ./.github/workflows/deploy-common.yml
     with:
       environment: production
     secrets: inherit
