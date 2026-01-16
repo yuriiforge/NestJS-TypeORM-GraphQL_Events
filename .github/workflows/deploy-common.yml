@@ -64,24 +64,14 @@ jobs:
         run: |
           touch .env
           # Use 'inputs' for the data passed into this workflow
-          echo "NODE_ENV=${{ inputs.NODE_ENV }}" >> .env
-          echo "DB_HOST=${{ inputs.DB_HOST }}" >> .env
-          echo "DB_PORT=${{ inputs.DB_PORT }}" >> .env
-          echo "DB_USERNAME=${{ inputs.DB_USERNAME }}" >> .env
-          echo "DB_DATABASE=${{ inputs.DB_DATABASE }}" >> .env
+          echo "NODE_ENV=${{ vars.NODE_ENV }}" >> .env
+          echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
+          echo "DB_USERNAME=${{ vars.DB_USERNAME }}" >> .env
+          echo "DB_DATABASE=${{ vars.DB_DATABASE }}" >> .env
           # Secrets stay as secrets
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
-
-      - name: Verify .env exists
-        run: |
-          if [ -f .env ]; then
-            echo ".env file created successfully"
-            ls -la .env
-          else
-            echo ".env file MISSING"
-            exit 1
-          fi
 
       - name: Local Deploy
         run: |
