@@ -13,8 +13,8 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "API is running successfully!"', () => {
-      expect(appController.getHello()).toBe('API is running successfully!');
+    it('should return "Hello World"', () => {
+      expect(appController.getHello()).toBe('Hello World');
     });
   });
 });
