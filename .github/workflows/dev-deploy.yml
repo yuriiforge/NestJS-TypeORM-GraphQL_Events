@@ -9,6 +9,7 @@ jobs:
     uses: ./.github/workflows/deploy-common.yml
     with:
       environment: dev
+      runner_tag: dev
       DB_HOST: ${{ vars.DB_HOST }}
       DB_PORT: ${{ vars.DB_PORT }}
       DB_USERNAME: ${{ vars.DB_USERNAME }}
