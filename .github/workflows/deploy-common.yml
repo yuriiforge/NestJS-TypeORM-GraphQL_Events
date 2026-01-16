@@ -6,6 +6,16 @@ on:
       environment:
         required: true
         type: string
+      DB_HOST:
+        type: string
+      DB_PORT:
+        type: string
+      DB_USERNAME:
+        type: string
+      DB_DATABASE:
+        type: string
+      NODE_ENV:
+        type: string
     secrets:
       EC2_HOST:
         required: true
@@ -13,24 +23,38 @@ on:
         required: true
       EC2_SSH_KEY:
         required: true
+      DB_PASSWORD:
+        required: true
+      AUTH_SECRET:
+        required: true
 
 jobs:
   build-and-test:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
-
       - name: Build and Test
         run: |
           docker build -t my-app:latest .
-          docker run --rm my-app:latest npm test
 
   deploy:
     needs: build-and-test
     runs-on: self-hosted
     environment: ${{ inputs.environment }}
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          touch .env
+          echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
+          echo "DB_USERNAME=${{ vars.DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_DATABASE=${{ vars.DB_DATABASE }}" >> .env
+          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
+
       - name: Local Deploy
         run: |
-          git pull origin ${{ github.ref_name }}
+          docker-compose down --remove-orphans
           docker-compose up -d --build

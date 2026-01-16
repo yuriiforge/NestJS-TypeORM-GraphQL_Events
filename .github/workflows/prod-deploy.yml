@@ -6,7 +6,17 @@ on:
 jobs:
   call-deploy:
     if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/deploy.yml
+    uses: ./.github/workflows/deploy-common.yml
     with:
-      environment: production
-    secrets: inherit
+      environment: prod
+      DB_HOST: ${{ vars.DB_HOST }}
+      DB_PORT: ${{ vars.DB_PORT }}
+      DB_USERNAME: ${{ vars.DB_USERNAME }}
+      DB_DATABASE: ${{ vars.DB_DATABASE }}
+      NODE_ENV: ${{ vars.NODE_ENV }}
+    secrets:
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USER: ${{ secrets.EC2_USER }}
+      EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
