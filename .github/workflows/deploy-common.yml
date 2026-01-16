@@ -33,9 +33,12 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
-      - name: Build and Test
+
+      - name: Pre-build Disk Cleanup
         run: |
-          docker build -t my-app:latest .
+          docker image prune -af --filter "until=2h"
+          docker builder prune -af --filter "until=2h"
+          df -h # Log disk space for debugging
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -74,6 +77,7 @@ jobs:
           docker-compose up -d --build
 
       - name: Post-deployment Cleanup
+        if: always()
         run: |
           docker image prune -af --filter "until=24h"
           docker builder prune -af --filter "until=24h"
