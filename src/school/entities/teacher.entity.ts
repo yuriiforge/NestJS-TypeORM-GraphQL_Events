@@ -25,6 +25,14 @@ export class Teacher {
   @Field()
   name: string;
 
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  phoneNumber?: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  placeOfBirth?: string;
+
   @Column({
     type: 'enum',
     enum: Gender,
