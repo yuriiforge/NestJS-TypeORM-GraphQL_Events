@@ -38,7 +38,7 @@ jobs:
         run: |
           docker image prune -af --filter "until=2h"
           docker builder prune -af --filter "until=2h"
-          df -h # Log disk space for debugging
+          df -h
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
