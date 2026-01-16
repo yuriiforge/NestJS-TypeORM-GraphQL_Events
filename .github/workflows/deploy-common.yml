@@ -63,18 +63,20 @@ jobs:
       - name: Create .env file
         run: |
           touch .env
-          echo "NODE_ENV=${{ vars.NODE_ENV }}" >> .env
-          echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
-          echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
-          echo "DB_USERNAME=${{ vars.DB_USERNAME }}" >> .env
+          # Use 'inputs' for the data passed into this workflow
+          echo "NODE_ENV=${{ inputs.NODE_ENV }}" >> .env
+          echo "DB_HOST=${{ inputs.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ inputs.DB_PORT }}" >> .env
+          echo "DB_USERNAME=${{ inputs.DB_USERNAME }}" >> .env
+          echo "DB_DATABASE=${{ inputs.DB_DATABASE }}" >> .env
+          # Secrets stay as secrets
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "DB_DATABASE=${{ vars.DB_DATABASE }}" >> .env
           echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
 
       - name: Local Deploy
         run: |
           docker-compose down --remove-orphans
-          docker-compose up -d --build
+          docker-compose up -d
 
       - name: Post-deployment Cleanup
         if: always()
