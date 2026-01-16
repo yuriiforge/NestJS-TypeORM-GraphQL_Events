@@ -18,15 +18,15 @@ on:
         type: string
     secrets:
       EC2_HOST:
-        required: true
+        required: false
       EC2_USER:
-        required: true
+        required: false
       EC2_SSH_KEY:
-        required: true
+        required: false
       DB_PASSWORD:
-        required: true
+        required: false
       AUTH_SECRET:
-        required: true
+        required: false
 
 jobs:
   build-and-test:
