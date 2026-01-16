@@ -63,13 +63,11 @@ jobs:
       - name: Create .env file
         run: |
           touch .env
-          # Use 'inputs' for the data passed into this workflow
           echo "NODE_ENV=${{ vars.NODE_ENV }}" >> .env
           echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
           echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
           echo "DB_USERNAME=${{ vars.DB_USERNAME }}" >> .env
           echo "DB_DATABASE=${{ vars.DB_DATABASE }}" >> .env
-          # Secrets stay as secrets
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
 
