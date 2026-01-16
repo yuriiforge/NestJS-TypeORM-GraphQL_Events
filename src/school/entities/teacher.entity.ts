@@ -25,8 +25,8 @@ export class Teacher {
   @Field()
   name: string;
 
-  @Column()
-  @Field()
+  @Column({ nullable: true })
+  @Field({ nullable: true })
   phoneNumber: string;
 
   @Column({
