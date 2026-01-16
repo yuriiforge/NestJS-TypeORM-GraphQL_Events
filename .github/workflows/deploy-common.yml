@@ -73,6 +73,16 @@ jobs:
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
 
+      - name: Verify .env exists
+        run: |
+          if [ -f .env ]; then
+            echo ".env file created successfully"
+            ls -la .env
+          else
+            echo ".env file MISSING"
+            exit 1
+          fi
+
       - name: Local Deploy
         run: |
           docker-compose down --remove-orphans
