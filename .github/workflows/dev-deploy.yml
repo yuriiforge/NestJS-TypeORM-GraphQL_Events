@@ -8,11 +8,11 @@ jobs:
   call-deploy:
     uses: ./.github/workflows/deploy-common.yml
     with:
-      environment: dev
+      environment: prod
       DB_HOST: ${{ vars.DB_HOST }}
       DB_PORT: ${{ vars.DB_PORT }}
-      DB_USER: ${{ vars.DB_USER }}
-      DB_NAME: ${{ vars.DB_NAME }}
+      DB_USERNAME: ${{ vars.DB_USERNAME }}
+      DB_DATABASE: ${{ vars.DB_DATABASE }}
       NODE_ENV: ${{ vars.NODE_ENV }}
     secrets:
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}

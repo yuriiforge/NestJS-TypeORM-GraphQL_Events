@@ -10,9 +10,9 @@ on:
         type: string
       DB_PORT:
         type: string
-      DB_USER:
+      DB_USERNAME:
         type: string
-      DB_NAME:
+      DB_DATABASE:
         type: string
       NODE_ENV:
         type: string
@@ -49,9 +49,9 @@ jobs:
           touch .env
           echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
           echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
-          echo "DB_USERNAME=${{ vars.DB_USER }}" >> .env
+          echo "DB_USERNAME=${{ vars.DB_USERNAME }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "DB_NAME=${{ vars.DB_NAME }}" >> .env
+          echo "DB_DATABASE=${{ vars.DB_DATABASE }}" >> .env
           echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
 
       - name: Local Deploy
