@@ -6,12 +6,26 @@ on:
       environment:
         required: true
         type: string
+      DB_HOST:
+        type: string
+      DB_PORT:
+        type: string
+      DB_USER:
+        type: string
+      DB_NAME:
+        type: string
+      NODE_ENV:
+        type: string
     secrets:
       EC2_HOST:
         required: true
       EC2_USER:
         required: true
       EC2_SSH_KEY:
+        required: true
+      DB_PASSWORD:
+        required: true
+      AUTH_SECRET:
         required: true
 
 jobs:
@@ -38,7 +52,7 @@ jobs:
           echo "DB_USERNAME=${{ vars.DB_USER }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "DB_NAME=${{ vars.DB_NAME }}" >> .env
-          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}"
+          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
 
       - name: Local Deploy
         run: |
