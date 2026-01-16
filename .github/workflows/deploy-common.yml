@@ -72,3 +72,8 @@ jobs:
         run: |
           docker-compose down --remove-orphans
           docker-compose up -d --build
+
+      - name: Post-deployment Cleanup
+        run: |
+          docker image prune -af --filter "until=24h"
+          docker builder prune -af --filter "until=24h"
