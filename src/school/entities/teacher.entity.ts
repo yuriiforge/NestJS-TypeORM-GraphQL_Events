@@ -25,6 +25,10 @@ export class Teacher {
   @Field()
   name: string;
 
+  @Column()
+  @Field()
+  phoneNumber: string;
+
   @Column({
     type: 'enum',
     enum: Gender,
