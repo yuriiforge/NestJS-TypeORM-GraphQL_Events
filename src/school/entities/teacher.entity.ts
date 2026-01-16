@@ -27,11 +27,11 @@ export class Teacher {
 
   @Column({ nullable: true })
   @Field({ nullable: true })
-  phoneNumber: string;
+  phoneNumber?: string;
 
   @Column({ nullable: true })
   @Field({ nullable: true })
-  placeOfBirth: string;
+  placeOfBirth?: string;
 
   @Column({
     type: 'enum',
