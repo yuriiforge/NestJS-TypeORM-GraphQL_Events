@@ -8,6 +8,9 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { SchoolModule } from './school/school.module';
+import { AppController } from './app.controller';
+import { ApolloServerPluginLandingPageDisabled } from '@apollo/server/plugin/disabled';
+import { NodeEnv } from './common/enums/node-env.enum';
 
 @Module({
   imports: [
@@ -25,13 +28,13 @@ import { SchoolModule } from './school/school.module';
       debug: true,
       playground: false,
       plugins: [
-        ApolloServerPluginLandingPageLocalDefault({
-          embed: true,
-        }),
+        process.env.NODE_ENV === NodeEnv.Production
+          ? ApolloServerPluginLandingPageDisabled()
+          : ApolloServerPluginLandingPageLocalDefault({ embed: true }),
       ],
     }),
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}
