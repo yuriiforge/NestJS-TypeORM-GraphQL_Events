@@ -15,8 +15,7 @@ RUN npm run test
 FROM deps AS builder
 WORKDIR /app
 
-COPY tsconfig*.json nest-cli.json ./
-COPY src ./src
+COPY . .
 
 RUN --mount=type=secret,id=sentry_token \
     export SENTRY_AUTH_TOKEN="$(cat /run/secrets/sentry_token)" && \
