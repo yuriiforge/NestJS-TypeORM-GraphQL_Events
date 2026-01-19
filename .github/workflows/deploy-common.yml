@@ -85,7 +85,6 @@ jobs:
       - name: Run Database Migrations
         run: |
           docker run --rm \
-            --network host \
             -e DB_HOST=${{ inputs.DB_HOST }} \
             -e DB_PORT=${{ inputs.DB_PORT }} \
             -e DB_USERNAME=${{ inputs.DB_USERNAME }} \
