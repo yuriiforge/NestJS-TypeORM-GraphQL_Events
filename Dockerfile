@@ -18,8 +18,7 @@ WORKDIR /app
 COPY . .
 
 RUN --mount=type=secret,id=sentry_token \
-    export SENTRY_AUTH_TOKEN="$(cat /run/secrets/sentry_token)" && \
-    npm run build
+    SENTRY_AUTH_TOKEN=$(cat /run/secrets/sentry_token) npm run build
 
 # Stage 4: Production (Final Image)
 FROM node:20-alpine
