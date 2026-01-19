@@ -36,37 +36,39 @@ on:
         required: true
 
 jobs:
-  build-test-deploy:
+  cleanup:
     runs-on: [self-hosted, '${{ inputs.runner_tag }}']
-    environment: ${{ inputs.environment }}
+    steps:
+      - name: Smart Disk Cleanup
+        run: |
+          # We prune images older than 24h so we don't delete the cache we just used
+          docker image prune -af --filter "until=24h"
+          # We don't prune the builder here because that would delete our cache!
+
+  test:
+    needs: cleanup
+    runs-on: [self-hosted, '${{ inputs.runner_tag }}']
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver: docker
-
-      - name: Emergency Disk Cleanup
-        run: |
-          echo "Current disk usage before cleanup:"
-          df -h
-          # 1. Remove all unused Docker data (containers, networks, dangling images)
-          docker system prune -af
-          # 2. Clear BuildKit build cache (usually the biggest space hog)
-          docker builder prune -af
-          # 3. Specifically target the buildx builder if it's stuck
-          docker buildx prune -af
-          echo "Disk usage after cleanup:"
-          df -h
-
-      - name: Run Tests
+      - name: Run Tests with Cache
         uses: docker/build-push-action@v5
         with:
           context: .
           target: test
           push: false
-          load: false
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+  build:
+    needs: test
+    runs-on: [self-hosted, '${{ inputs.runner_tag }}']
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker
 
       - name: Build Production Image
         uses: docker/build-push-action@v5
@@ -74,25 +76,25 @@ jobs:
           context: .
           push: false
           load: true
-          no-cache: true
           tags: my-app:latest
           secrets: |
             sentry_token=${{ secrets.SENTRY_AUTH_TOKEN }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-      # 4. DEPLOY (Only happens if build passes)
-      - name: Create .env file
+      - name: Move cache
         run: |
-          touch .env
-          echo "NODE_ENV=${{ vars.NODE_ENV }}" >> .env
-          echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
-          echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
-          echo "DB_USERNAME=${{ vars.DB_USERNAME }}" >> .env
-          echo "DB_DATABASE=${{ vars.DB_DATABASE }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
-          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+  deploy:
+    needs: build
+    runs-on: [self-hosted, '${{ inputs.runner_tag }}']
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
       - name: Local Deploy
         run: |
-          docker compose down --remove-orphans
+          # No cache needed here, it just uses the 'my-app:latest' image 
+          # loaded into the Docker engine by the 'build' job.
           docker compose up -d --force-recreate
