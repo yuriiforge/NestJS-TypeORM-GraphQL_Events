@@ -76,9 +76,34 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+  run-migrations:
+    needs: build
+    runs-on: [self-hosted, '${{ inputs.runner_tag }}']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          # Use inputs. instead of vars. if that's how you pass them
+          echo "NODE_ENV=${{ vars.NODE_ENV }}" > .env
+          echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
+          echo "DB_USERNAME=${{ vars.DB_USERNAME }}" >> .env
+          echo "DB_DATABASE=${{ vars.DB_DATABASE }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
+
+      - name: Run Database Migrations
+        run: |
+          docker run --rm \
+            --env-file .env \
+            my-app:latest \
+            npm run migration:run:prod
+
   # JOB 3: DEPLOY
   deploy:
-    needs: build
+    needs: run-migrations
     runs-on: [self-hosted, '${{ inputs.runner_tag }}']
     environment: ${{ inputs.environment }}
     steps:
