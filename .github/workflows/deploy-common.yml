@@ -42,35 +42,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. SETUP & CLEANUP
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          driver: docker-container
+          driver: docker
 
-      # 2. RUN TESTS (Fail Fast)
-      # This uses your Dockerfile's 'test' stage.
-      # If 'npm run test' inside Docker returns code 1, the whole job STOPS here.
       - name: Run Tests
         uses: docker/build-push-action@v5
         with:
           context: .
-          target: test # Tells Docker to run up to the 'test' stage and stop
+          target: test
           push: false
-          load: false # No need to load the test image into the engine
+          load: false
 
-      # 3. BUILD (Only happens if tests pass)
       - name: Build Production Image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: false
           load: true
+          no-cache: true
           tags: my-app:latest
           secrets: |
             sentry_token=${{ secrets.SENTRY_AUTH_TOKEN }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       # 4. DEPLOY (Only happens if build passes)
       - name: Create .env file
