@@ -99,7 +99,7 @@ jobs:
           docker run --rm \
             --env-file .env \
             my-app:latest \
-            npm run migration:run:prod
+            npm run migration:run
 
   # JOB 3: DEPLOY
   deploy:
