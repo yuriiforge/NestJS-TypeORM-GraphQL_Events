@@ -42,9 +42,14 @@ jobs:
     steps:
       - name: Smart Disk Cleanup
         run: |
+          # Delete images older than 24 hours
           docker image prune -af --filter "until=24h"
-          find ~/actions-runner/_diag/ -type f -mtime +2 -delete
 
+          # Delete build cache older than 24 hours
+          docker builder prune -af --filter "until=24h"
+
+          # Delete stopped containers
+          docker container prune -f
   # JOB 2: TEST (Depends on Cleanup)
   test:
     needs: cleanup
