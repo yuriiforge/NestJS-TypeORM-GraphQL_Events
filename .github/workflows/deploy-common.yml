@@ -59,11 +59,9 @@ jobs:
           context: .
           push: false
           load: true
-          tags: my-app:latest
+          no-cache: true
           secrets: |
             sentry_token=${{ secrets.SENTRY_AUTH_TOKEN }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
   deploy:
     needs: build-and-test
