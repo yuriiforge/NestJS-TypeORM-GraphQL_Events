@@ -84,7 +84,6 @@ jobs:
 
       - name: Create .env file
         run: |
-          # Use inputs. instead of vars. if that's how you pass them
           echo "NODE_ENV=${{ vars.NODE_ENV }}" > .env
           echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
           echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
@@ -97,6 +96,7 @@ jobs:
       - name: Run Database Migrations
         run: |
           docker run --rm \
+            --network host \
             --env-file .env \
             my-app:latest \
             npm run migration:run
@@ -110,7 +110,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Create .env file
         run: |
-          # Use inputs. instead of vars. if that's how you pass them
           echo "NODE_ENV=${{ vars.NODE_ENV }}" > .env
           echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
           echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
