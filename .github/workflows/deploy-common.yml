@@ -36,7 +36,7 @@ on:
         required: true
 
 jobs:
-  build-and-test:
+  build-and-deploy: # MERGED INTO ONE JOB
     runs-on: [self-hosted, '${{ inputs.runner_tag }}']
     environment: ${{ inputs.environment }}
     steps:
@@ -46,7 +46,6 @@ jobs:
         run: |
           docker image prune -af --filter "until=2h"
           docker builder prune -af --filter "until=2h"
-          df -h
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -58,36 +57,31 @@ jobs:
         with:
           context: .
           push: false
-          load: true
+          load: true # Crucial: This injects the image into the local EC2 Docker engine
           tags: my-app:latest
           secrets: |
             sentry_token=${{ secrets.SENTRY_AUTH_TOKEN }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  deploy:
-    needs: build-and-test
-    runs-on: [self-hosted, '${{ inputs.runner_tag }}']
-    environment: ${{ inputs.environment }}
-    steps:
-      - uses: actions/checkout@v4
-
       - name: Create .env file
         run: |
+          # Use inputs. instead of vars. if you passed them as inputs!
           touch .env
-          echo "NODE_ENV=${{ vars.NODE_ENV }}" >> .env
-          echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
-          echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
-          echo "DB_USERNAME=${{ vars.DB_USERNAME }}" >> .env
-          echo "DB_DATABASE=${{ vars.DB_DATABASE }}" >> .env
+          echo "NODE_ENV=${{ inputs.NODE_ENV }}" >> .env
+          echo "DB_HOST=${{ inputs.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ inputs.DB_PORT }}" >> .env
+          echo "DB_USERNAME=${{ inputs.DB_USERNAME }}" >> .env
+          echo "DB_DATABASE=${{ inputs.DB_DATABASE }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
           echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
 
       - name: Local Deploy
         run: |
+          # Since the build happened in this same job, my-app:latest is ready
           docker-compose down --remove-orphans
-          docker-compose up -d
+          docker-compose up -d --force-recreate
 
       - name: Post-deployment Cleanup
         if: always()
