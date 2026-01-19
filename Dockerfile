@@ -18,7 +18,11 @@ WORKDIR /app
 COPY . .
 
 RUN --mount=type=secret,id=sentry_token \
-    SENTRY_AUTH_TOKEN=$(cat /run/secrets/sentry_token) npm run build
+    if [ -f /run/secrets/sentry_token ]; then \
+      SENTRY_AUTH_TOKEN=$(cat /run/secrets/sentry_token) npm run build; \
+    else \
+      echo "ERROR: Secret mount missing" && exit 1; \
+    fi
 
 # Stage 4: Production (Final Image)
 FROM node:20-alpine
