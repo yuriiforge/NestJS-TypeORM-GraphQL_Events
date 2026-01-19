@@ -2,6 +2,7 @@
 FROM node:20-alpine AS deps
 ARG SENTRY_AUTH_TOKEN  <-- Add here
 ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
+RUN echo "Token check: ${SENTRY_AUTH_TOKEN:0:4}..."
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -15,11 +16,6 @@ RUN npm run test
 FROM deps AS builder
 COPY tsconfig*.json nest-cli.json ./
 COPY src ./src
-
-ARG SENTRY_AUTH_TOKEN
-ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
-# TEMPORARY DEBUG: This will show the first 4 characters of the token in logs
-RUN echo "Token check: ${SENTRY_AUTH_TOKEN:0:4}..."
 
 RUN npm run build
 
