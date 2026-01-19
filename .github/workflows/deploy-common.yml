@@ -57,7 +57,7 @@ jobs:
           push: false
           load: true
           tags: my-app:latest
-          build-args: |
+          secrets: |
             sentry_token=${{ secrets.SENTRY_AUTH_TOKEN }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -80,7 +80,6 @@ jobs:
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
           echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
-          echo "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}" >> .env
 
       - name: Local Deploy
         run: |
