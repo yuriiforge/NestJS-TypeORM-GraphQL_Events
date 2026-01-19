@@ -15,4 +15,8 @@ jobs:
       DB_USERNAME: ${{ vars.DB_USERNAME }}
       DB_DATABASE: ${{ vars.DB_DATABASE }}
       NODE_ENV: ${{ vars.NODE_ENV }}
-    secrets: inherit
+    secrets:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}

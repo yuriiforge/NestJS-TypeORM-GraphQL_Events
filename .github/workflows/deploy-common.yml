@@ -4,10 +4,10 @@ on:
   workflow_call:
     inputs:
       environment:
-        required: true
+        required: false
         type: string
       runner_tag:
-        required: true
+        required: false
         type: string
       DB_HOST:
         type: string
@@ -30,57 +30,91 @@ on:
         required: false
       AUTH_SECRET:
         required: false
+      SENTRY_AUTH_TOKEN:
+        required: true
+      SENTRY_DSN:
+        required: true
 
 jobs:
-  build-and-test:
-    runs-on: self-hosted
+  # JOB 1: CLEANUP
+  cleanup:
+    runs-on: [self-hosted, '${{ inputs.runner_tag }}']
+    steps:
+      - name: Smart Disk Cleanup
+        run: |
+          sudo rm -f /tmp/.buildx-cache/*.lock
+          # Delete images older than 24 hours
+          docker image prune -af --filter "until=24h"
+
+          # Delete build cache older than 24 hours
+          docker builder prune -af --filter "until=24h"
+
+          # Delete stopped containers
+          docker container prune -f
+  # JOB 2: TEST (Depends on Cleanup)
+  test:
+    needs: cleanup
+    runs-on: [self-hosted, '${{ inputs.runner_tag }}']
     steps:
       - uses: actions/checkout@v4
 
-      - name: Pre-build Disk Cleanup
-        run: |
-          docker image prune -af --filter "until=2h"
-          docker builder prune -af --filter "until=2h"
-          df -h
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
 
-      - name: Build and Test
+      - name: Run Tests with Cache
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          target: test
+          push: false
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+  # JOB 3: BUILD (Depends on Test)
+  build:
+    needs: test
+    runs-on: [self-hosted, '${{ inputs.runner_tag }}']
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+
+      - name: Build Production Image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: false
           load: true
           tags: my-app:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          secrets: |
+            sentry_token=${{ secrets.SENTRY_AUTH_TOKEN }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
+  # JOB 4: DEPLOY (Depends on Build)
   deploy:
-    needs: build-and-test
+    needs: build
     runs-on: [self-hosted, '${{ inputs.runner_tag }}']
     environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
-
       - name: Create .env file
         run: |
-          touch .env
-          echo "NODE_ENV=${{ vars.NODE_ENV }}" >> .env
+          # Use inputs. instead of vars. if that's how you pass them
+          echo "NODE_ENV=${{ vars.NODE_ENV }}" > .env
           echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
           echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
           echo "DB_USERNAME=${{ vars.DB_USERNAME }}" >> .env
           echo "DB_DATABASE=${{ vars.DB_DATABASE }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
 
       - name: Local Deploy
         run: |
-          docker-compose down --remove-orphans
-          docker-compose up -d
-
-      - name: Post-deployment Cleanup
-        if: always()
-        run: |
-          docker image prune -af --filter "until=24h"
-          docker builder prune -af --filter "until=24h"
+          docker compose up -d --force-recreate

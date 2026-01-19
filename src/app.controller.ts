@@ -4,6 +4,11 @@ import { Get, Controller } from '@nestjs/common';
 export class AppController {
   @Get()
   getHello(): string {
-    return 'Hello World';
+    return 'Hello World!';
+  }
+
+  @Get('debug-sentry')
+  getError() {
+    throw new Error('Sentry Test Error: ' + Date.now());
   }
 }

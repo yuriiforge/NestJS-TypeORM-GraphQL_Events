@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.6
+
 # Stage 1: Base & Dependencies
 FROM node:20-alpine AS deps
 WORKDIR /app
@@ -11,9 +13,16 @@ RUN npm run test
 
 # Stage 3: Build
 FROM deps AS builder
-COPY tsconfig*.json nest-cli.json ./
-COPY src ./src
-RUN npm run build
+WORKDIR /app
+
+COPY . .
+
+RUN --mount=type=secret,id=sentry_token \
+    if [ ! -s /run/secrets/sentry_token ]; then \
+        echo "ERROR: sentry_token is empty or missing at /run/secrets/sentry_token"; \
+        exit 1; \
+    fi && \
+    SENTRY_AUTH_TOKEN=$(cat /run/secrets/sentry_token) npm run build
 
 # Stage 4: Production (Final Image)
 FROM node:20-alpine
