@@ -42,50 +42,28 @@ jobs:
     steps:
       - name: Smart Disk Cleanup
         run: |
-          sudo rm -f /tmp/.buildx-cache/*.lock
           docker image prune -af --filter "until=24h"
 
           docker builder prune -af --filter "until=24h"
 
           docker container prune -f
-  # JOB 2: TEST (Depends on Cleanup)
-  test:
+
+  # JOB 2: Build + Test
+  build:
     needs: cleanup
     runs-on: [self-hosted, '${{ inputs.runner_tag }}']
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver: docker-container
-
-      - name: Run Tests with Cache
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          target: test
-          push: false
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
-  # JOB 3: BUILD (Depends on Test)
-  build:
-    needs: test
-    runs-on: [self-hosted, '${{ inputs.runner_tag }}']
     environment: ${{ inputs.environment }}
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          driver: docker-container
 
-      - name: Build Production Image
+      - name: Build image (tests inside)
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: false
           load: true
           tags: my-app:latest
           secrets: |
@@ -93,7 +71,12 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-  # JOB 4: DEPLOY (Depends on Build)
+      - name: Promote Docker cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  # JOB 3: DEPLOY
   deploy:
     needs: build
     runs-on: [self-hosted, '${{ inputs.runner_tag }}']
