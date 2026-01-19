@@ -16,6 +16,8 @@ COPY src ./src
 
 ARG SENTRY_AUTH_TOKEN
 ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
+# TEMPORARY DEBUG: This will show the first 4 characters of the token in logs
+RUN echo "Token check: ${SENTRY_AUTH_TOKEN:0:4}..."
 
 RUN npm run build
 

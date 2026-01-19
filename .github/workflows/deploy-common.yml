@@ -30,6 +30,7 @@ on:
         required: false
       AUTH_SECRET:
         required: false
+      SENTRY_AUTH_TOKEN:
 
 jobs:
   build-and-test:
