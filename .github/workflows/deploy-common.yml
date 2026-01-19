@@ -37,7 +37,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: self-hosted
+    runs-on: [self-hosted, '${{ inputs.runner_tag }}']
     steps:
       - uses: actions/checkout@v4
 

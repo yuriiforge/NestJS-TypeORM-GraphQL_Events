@@ -13,6 +13,8 @@ RUN npm run test
 
 # Stage 3: Build
 FROM deps AS builder
+WORKDIR /app
+
 COPY tsconfig*.json nest-cli.json ./
 COPY src ./src
 
