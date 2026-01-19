@@ -61,7 +61,7 @@ jobs:
           load: true
           tags: my-app:latest
           secrets: |
-            'sentry_token=${{ secrets.SENTRY_AUTH_TOKEN }}'
+            sentry_token=${{ secrets.SENTRY_AUTH_TOKEN }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -87,7 +87,7 @@ jobs:
       - name: Local Deploy
         run: |
           docker-compose down --remove-orphans
-          docker-compose up -d --force-recreate
+          docker-compose up -d
 
       - name: Post-deployment Cleanup
         if: always()
