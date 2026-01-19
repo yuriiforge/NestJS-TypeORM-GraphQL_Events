@@ -4,7 +4,7 @@ import { Get, Controller } from '@nestjs/common';
 export class AppController {
   @Get()
   getHello(): string {
-    return 'Hello World! NEW';
+    return 'Hello World!';
   }
 
   @Get('debug-sentry')

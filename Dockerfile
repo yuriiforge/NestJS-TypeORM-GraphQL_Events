@@ -33,4 +33,4 @@ COPY --from=builder /app/dist ./dist
 RUN npm ci --omit=dev 
 
 EXPOSE 3000
-CMD ["sh", "-c", "node dist/main"]
+CMD ["sh", "-c", "npm run migration:run && node dist/main"]
