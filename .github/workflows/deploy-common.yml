@@ -87,7 +87,7 @@ jobs:
       - name: Local Deploy
         run: |
           docker-compose down --remove-orphans
-          docker-compose up -d
+          docker-compose up -d --force-recreate
 
       - name: Post-deployment Cleanup
         if: always()
