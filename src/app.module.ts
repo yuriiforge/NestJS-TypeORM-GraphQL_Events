@@ -11,6 +11,8 @@ import { SchoolModule } from './school/school.module';
 import { AppController } from './app.controller';
 import { ApolloServerPluginLandingPageDisabled } from '@apollo/server/plugin/disabled';
 import { NodeEnv } from './common/enums/node-env.enum';
+import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
+import { APP_FILTER } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { NodeEnv } from './common/enums/node-env.enum';
       isGlobal: true,
       validationSchema: envValidation,
     }),
+    SentryModule.forRoot(),
     DatabaseModule,
     AuthModule,
     EventsModule,
@@ -35,6 +38,6 @@ import { NodeEnv } from './common/enums/node-env.enum';
     }),
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [{ provide: APP_FILTER, useClass: SentryGlobalFilter }],
 })
 export class AppModule {}

@@ -1,3 +1,4 @@
+import './instrument';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
@@ -7,6 +8,7 @@ import { EntityNotFoundErrorFilter } from './entity-not-found-error.filter';
 // For testing purposes
 
 async function bootstrap() {
+  console.log('Sentry DSN:', process.env.SENTRY_DSN);
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new EntityNotFoundErrorFilter());
