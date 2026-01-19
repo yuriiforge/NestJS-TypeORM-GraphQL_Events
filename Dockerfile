@@ -1,5 +1,7 @@
 # Stage 1: Base & Dependencies
 FROM node:20-alpine AS deps
+ARG SENTRY_AUTH_TOKEN  <-- Add here
+ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
