@@ -86,12 +86,12 @@ jobs:
         run: |
           docker run --rm \
             --network host \
-            -e DB_HOST=${{ vars.DB_HOST }} \
-            -e DB_PORT=${{ vars.DB_PORT }} \
-            -e DB_USERNAME=${{ vars.DB_USERNAME }} \
+            -e DB_HOST=${{ inputs.DB_HOST }} \
+            -e DB_PORT=${{ inputs.DB_PORT }} \
+            -e DB_USERNAME=${{ inputs.DB_USERNAME }} \
             -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -e DB_DATABASE=${{ vars.DB_DATABASE }} \
-            -e NODE_ENV=${{ vars.NODE_ENV }} \
+            -e DB_DATABASE=${{ inputs.DB_DATABASE }} \
+            -e NODE_ENV=${{ inputs.NODE_ENV }} \
             -e SENTRY_DSN=${{ secrets.SENTRY_DSN }} \
             my-app:latest \
             npm run migration:run
