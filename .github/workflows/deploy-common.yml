@@ -94,11 +94,7 @@ jobs:
           echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
 
       - name: Run Database Migrations
-        run: docker run --rm \
-          --network host \
-          --env-file .env \
-          my-app:latest \
-          npm run migration:run
+        run: docker run --rm --network host --env-file .env my-app:latest npm run migration:run
 
   # JOB 4: DEPLOY
   deploy:
