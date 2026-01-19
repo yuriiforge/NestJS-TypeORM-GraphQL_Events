@@ -1,8 +1,10 @@
+# syntax=docker/dockerfile:1.6
+
 # Stage 1: Base & Dependencies
 FROM node:20-alpine AS deps
-ARG SENTRY_AUTH_TOKEN  <-- Add here
-ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
-RUN echo "Token check: ${SENTRY_AUTH_TOKEN:0:4}..."
+RUN --mount=type=secret,id=sentry_token \
+    export SENTRY_AUTH_TOKEN=$(cat /run/secrets/sentry_token) && \
+    npm run build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
