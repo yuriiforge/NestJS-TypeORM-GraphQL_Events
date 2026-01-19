@@ -43,6 +43,7 @@ jobs:
       - name: Smart Disk Cleanup
         run: |
           docker image prune -af --filter "until=24h"
+          find ~/actions-runner/_diag/ -type f -mtime +2 -delete
 
   # JOB 2: TEST (Depends on Cleanup)
   test:
