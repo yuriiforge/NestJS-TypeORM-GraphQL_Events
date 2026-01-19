@@ -36,15 +36,15 @@ on:
         required: true
 
 jobs:
+  # JOB 1: CLEANUP
   cleanup:
     runs-on: [self-hosted, '${{ inputs.runner_tag }}']
     steps:
       - name: Smart Disk Cleanup
         run: |
-          # We prune images older than 24h so we don't delete the cache we just used
           docker image prune -af --filter "until=24h"
-          # We don't prune the builder here because that would delete our cache!
 
+  # JOB 2: TEST (Depends on Cleanup)
   test:
     needs: cleanup
     runs-on: [self-hosted, '${{ inputs.runner_tag }}']
@@ -59,6 +59,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
+  # JOB 3: BUILD (Depends on Test)
   build:
     needs: test
     runs-on: [self-hosted, '${{ inputs.runner_tag }}']
@@ -82,19 +83,25 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
+  # JOB 4: DEPLOY (Depends on Build)
   deploy:
     needs: build
     runs-on: [self-hosted, '${{ inputs.runner_tag }}']
     environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
+      - name: Create .env file
+        run: |
+          # Use inputs. instead of vars. if that's how you pass them
+          echo "NODE_ENV=${{ inputs.NODE_ENV }}" > .env
+          echo "DB_HOST=${{ inputs.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ inputs.DB_PORT }}" >> .env
+          echo "DB_USERNAME=${{ inputs.DB_USERNAME }}" >> .env
+          echo "DB_DATABASE=${{ inputs.DB_DATABASE }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
+
       - name: Local Deploy
         run: |
-          # No cache needed here, it just uses the 'my-app:latest' image 
-          # loaded into the Docker engine by the 'build' job.
           docker compose up -d --force-recreate
