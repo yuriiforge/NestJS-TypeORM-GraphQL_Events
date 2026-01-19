@@ -2,7 +2,7 @@
 
 # Stage 1: Base & Dependencies
 FROM node:20-alpine AS deps
-ARG SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
+ARG SENTRY_AUTH_TOKEN
 ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
 WORKDIR /app
 COPY package*.json ./
@@ -19,7 +19,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN npm run build
+RUN npm run build
 
 # Stage 4: Production (Final Image)
 FROM node:20-alpine

@@ -56,15 +56,14 @@ jobs:
       - name: Build and Test
         uses: docker/build-push-action@v5
         with:
+          context: .
           push: false
           load: true
           tags: my-app:latest
-          secrets: |
-            sentry_token=${{ secrets.SENTRY_AUTH_TOKEN }}
+          build-args: |
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
   deploy:
     needs: build-and-test
