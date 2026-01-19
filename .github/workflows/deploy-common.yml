@@ -36,37 +36,45 @@ on:
         required: true
 
 jobs:
-  build-and-deploy: # MERGED INTO ONE JOB
+  build-test-deploy:
     runs-on: [self-hosted, '${{ inputs.runner_tag }}']
     environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Pre-build Disk Cleanup
-        run: |
-          docker image prune -af --filter "until=2h"
-          docker builder prune -af --filter "until=2h"
-
+      # 1. SETUP & CLEANUP
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
           driver: docker-container
 
-      - name: Build and Test
+      # 2. RUN TESTS (Fail Fast)
+      # This uses your Dockerfile's 'test' stage.
+      # If 'npm run test' inside Docker returns code 1, the whole job STOPS here.
+      - name: Run Tests
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          target: test # Tells Docker to run up to the 'test' stage and stop
+          push: false
+          load: false # No need to load the test image into the engine
+
+      # 3. BUILD (Only happens if tests pass)
+      - name: Build Production Image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: false
-          load: true # Crucial: This injects the image into the local EC2 Docker engine
+          load: true
           tags: my-app:latest
           secrets: |
             sentry_token=${{ secrets.SENTRY_AUTH_TOKEN }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # 4. DEPLOY (Only happens if build passes)
       - name: Create .env file
         run: |
-          # Use inputs. instead of vars. if you passed them as inputs!
           touch .env
           echo "NODE_ENV=${{ inputs.NODE_ENV }}" >> .env
           echo "DB_HOST=${{ inputs.DB_HOST }}" >> .env
@@ -79,12 +87,5 @@ jobs:
 
       - name: Local Deploy
         run: |
-          # Since the build happened in this same job, my-app:latest is ready
           docker-compose down --remove-orphans
           docker-compose up -d --force-recreate
-
-      - name: Post-deployment Cleanup
-        if: always()
-        run: |
-          docker image prune -af --filter "until=24h"
-          docker builder prune -af --filter "until=24h"
