@@ -105,6 +105,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create .env file
+        run: |
+          echo "NODE_ENV=${{ vars.NODE_ENV }}" > .env
+          echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
+          echo "DB_USERNAME=${{ vars.DB_USERNAME }}" >> .env
+          echo "DB_DATABASE=${{ vars.DB_DATABASE }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
+
       - name: Local Deploy
         run: |
           docker compose up -d --force-recreate
