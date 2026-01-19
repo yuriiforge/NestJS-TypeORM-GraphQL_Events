@@ -13,6 +13,10 @@ RUN npm run test
 FROM deps AS builder
 COPY tsconfig*.json nest-cli.json ./
 COPY src ./src
+
+ARG SENTRY_AUTH_TOKEN
+ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
+
 RUN npm run build
 
 # Stage 4: Production (Final Image)
