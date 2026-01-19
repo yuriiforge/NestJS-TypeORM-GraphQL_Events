@@ -43,13 +43,10 @@ jobs:
       - name: Smart Disk Cleanup
         run: |
           sudo rm -f /tmp/.buildx-cache/*.lock
-          # Delete images older than 24 hours
           docker image prune -af --filter "until=24h"
 
-          # Delete build cache older than 24 hours
           docker builder prune -af --filter "until=24h"
 
-          # Delete stopped containers
           docker container prune -f
   # JOB 2: TEST (Depends on Cleanup)
   test:
