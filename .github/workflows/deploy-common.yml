@@ -51,7 +51,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          driver: docker-container
+          driver: docker
 
       - name: Build and Test
         uses: docker/build-push-action@v5
@@ -59,9 +59,13 @@ jobs:
           context: .
           push: false
           load: true
-          no-cache: true
+          tags: my-app:latest
           secrets: |
             sentry_token=${{ secrets.SENTRY_AUTH_TOKEN }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
   deploy:
     needs: build-and-test
