@@ -32,6 +32,8 @@ on:
         required: false
       SENTRY_AUTH_TOKEN:
         required: true
+      SENTRY_DSN:
+        required: true
 
 jobs:
   build-and-test:
