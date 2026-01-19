@@ -76,9 +76,39 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+  run-migrations:
+    needs: build
+    runs-on: [self-hosted, '${{ inputs.runner_tag }}']
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create .env file
+        run: |
+          echo "NODE_ENV=${{ vars.NODE_ENV }}" > .env
+          echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
+          echo "DB_USERNAME=${{ vars.DB_USERNAME }}" >> .env
+          echo "DB_DATABASE=${{ vars.DB_DATABASE }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
+
+      - name: Run Database Migrations
+        run: docker run --rm \
+          --network host \
+          -e DB_HOST=${{ inputs.DB_HOST }} \
+          -e DB_PORT=${{ inputs.DB_PORT }} \
+          -e DB_USERNAME=${{ inputs.DB_USERNAME }} \
+          -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+          -e DB_DATABASE=${{ inputs.DB_DATABASE }} \
+          -e NODE_ENV=${{ inputs.NODE_ENV }} \
+          -e SENTRY_DSN=${{ secrets.SENTRY_DSN }} \
+          my-app:latest \
+          npm run migration:run
+
   # JOB 4: DEPLOY
   deploy:
-    needs: build
+    needs: run-migrations
     runs-on: [self-hosted, '${{ inputs.runner_tag }}']
     environment: ${{ inputs.environment }}
     steps:
