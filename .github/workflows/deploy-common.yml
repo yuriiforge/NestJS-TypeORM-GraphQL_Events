@@ -56,7 +56,6 @@ jobs:
       - name: Build and Test
         uses: docker/build-push-action@v5
         with:
-          context: .
           push: false
           load: true
           tags: my-app:latest
