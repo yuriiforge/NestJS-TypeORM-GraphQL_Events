@@ -2,8 +2,6 @@
 
 # Stage 1: Base & Dependencies
 FROM node:20-alpine AS deps
-ARG SENTRY_AUTH_TOKEN
-ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -19,7 +17,12 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm run build
+RUN --mount=type=secret,id=sentry_token \
+    if [ ! -s /run/secrets/sentry_token ]; then \
+        echo "ERROR: sentry_token is empty or missing at /run/secrets/sentry_token"; \
+        exit 1; \
+    fi && \
+    SENTRY_AUTH_TOKEN=$(cat /run/secrets/sentry_token) npm run build
 
 # Stage 4: Production (Final Image)
 FROM node:20-alpine
