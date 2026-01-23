@@ -6,31 +6,27 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
-# Stage 2: Test 
-FROM deps AS test
-COPY . . 
-RUN npm run test 
-
-# Stage 3: Build
+# Stage 2: Builder (tests + build)
 FROM deps AS builder
 WORKDIR /app
-
 COPY . .
 
-RUN --mount=type=secret,id=sentry_token \
-    if [ ! -s /run/secrets/sentry_token ]; then \
-        echo "ERROR: sentry_token is empty or missing at /run/secrets/sentry_token"; \
-        exit 1; \
-    fi && \
-    SENTRY_AUTH_TOKEN=$(cat /run/secrets/sentry_token) npm run build
+# Run tests
+RUN npm run test
 
-# Stage 4: Production (Final Image)
+# Build
+RUN --mount=type=secret,id=sentry_token \
+    SENTRY_AUTH_TOKEN="$(cat /run/secrets/sentry_token)" npm run build
+
+RUN npm prune --omit=dev
+
+# Stage 3: Production
 FROM node:20-alpine
 WORKDIR /app
+
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
-
-RUN npm ci --omit=dev 
+COPY --from=builder /app/node_modules ./node_modules
 
 EXPOSE 3000
-CMD ["sh", "-c", "npm run migration:run && node dist/main"]
+CMD ["sh", "-c", "node dist/main"]
